@@ -1,19 +1,23 @@
+
 import streamlit as st
-import os
 from openai import OpenAI
 
+# Page configuration
+st.set_page_config(page_title="Mera Chatbot", page_icon="🤖")
+
+# Groq API client
 client = OpenAI(
-    # api_key=os.environ.get("GROQ_API_KEY"),
     api_key=st.secrets["GROQ_API_KEY"],
     base_url="https://api.groq.com/openai/v1",
 )
 
-model="openai/gpt-oss-20b"
+model = "openai/gpt-oss-20b"
 
 SYSTEM_PROMPT = """
 You are a friendly, intelligent, professional, and helpful AI assistant.
 
-Your main goal is to understand users' questions and provide accurate, clear, useful, and easy-to-understand answers.
+Your main goal is to understand users' questions and provide accurate,
+clear, useful, and easy-to-understand answers.
 
 Language Rules:
 - If the user speaks in Roman Urdu, always reply in Roman Urdu.
@@ -32,53 +36,56 @@ Behavior:
 - Provide examples when they help explain something.
 - Follow the user's instructions carefully.
 - Keep conversations natural and engaging.
-- Avoid repeating the same information unnecessarily.
 
 Problem Solving:
 - Think carefully before answering.
-- Break complex problems into simple steps.
+- Break complex topics into simple steps.
 - Provide practical solutions whenever possible.
-- For technical questions, provide accurate explanations and working code when appropriate.
-
-Your priority is to make every interaction helpful, accurate, natural, and enjoyable.
 """
-st.title("Mera Chatbot")
+
+st.title("🤖 Mera Chatbot")
 st.caption("Ask me anything!")
 
+# Initialize chat history
 if "message" not in st.session_state:
-    st.session_state.message = [{
-        "role": "system",
-        "content": SYSTEM_PROMPT
-    }]
+    st.session_state.message = [
+        {
+            "role": "system",
+            "content": SYSTEM_PROMPT
+        }
+    ]
 
-# Clear chat history button
+# Clear chat history
 if st.button("Clear Chat History"):
-    st.session_state.message = [{
-        "role": "system",
-        "content": SYSTEM_PROMPT
-    }]
+    st.session_state.message = [
+        {
+            "role": "system",
+            "content": SYSTEM_PROMPT
+        }
+    ]
     st.rerun()
 
-#Display chat messages from history on app rerun
-    for msg in st.session_state.message:
-        if msg["role"] != "system":
+# Display previous messages
+for msg in st.session_state.message:
+    if msg["role"] != "system":
+        with st.chat_message(msg["role"]):
             st.write(msg["content"])
 
-#User input
-if prompt := st.text_input("Apna sawal yahan likhein:"):
+# User input
+if prompt := st.chat_input("Apna sawal yahan likhein..."):
 
-   # Displya User Message
-   with st.chat_message("user"):
-       st.write(prompt)
+    # Display user message
+    with st.chat_message("user"):
+        st.write(prompt)
 
-       st.session_state.message.append({
-           "role": "user",
-            "content": prompt
-         })
+    # Save user message
+    st.session_state.message.append({
+        "role": "user",
+        "content": prompt
+    })
 
-#generate AI response
-
-   with st.chat_message("assistant"):
+    # Generate AI response
+    with st.chat_message("assistant"):
         with st.spinner("Soch raha hoon..."):
             try:
                 response = client.chat.completions.create(
@@ -88,17 +95,19 @@ if prompt := st.text_input("Apna sawal yahan likhein:"):
 
                 reply = response.choices[0].message.content
 
+                if not reply:
+                    reply = "Sorry, mujhe koi response nahi mila."
+
             except Exception as e:
-                    reply = f"Error: {str(e)}"
+                reply = f"Error: {str(e)}"
 
         st.write(reply)
 
-    #Save assistant response to session state
-        st.session_state.message.append({
-            "role": "assistant",
-            "content": reply
-        })
-                
+    # Save assistant response
+    st.session_state.message.append({
+        "role": "assistant",
+        "content": reply
+    })
 
 
 # import streamlit as st
