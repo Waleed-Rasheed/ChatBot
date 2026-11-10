@@ -162,6 +162,7 @@ st.markdown("""
 # ==============================
 
 API_KEY = os.environ.get("GROQ_API_KEY")
+api_key=st.secrets["GROQ_API_KEY"],
 
 MODEL = "openai/gpt-oss-20b"
 
@@ -172,6 +173,7 @@ if not API_KEY:
 
 client = OpenAI(
     api_key=API_KEY,
+    api_key=st.secrets["GROQ_API_KEY"],
     base_url="https://api.groq.com/openai/v1",
     timeout=60.0
 )
