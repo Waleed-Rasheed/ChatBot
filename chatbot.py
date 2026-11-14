@@ -8,7 +8,7 @@ st.set_page_config(page_title="Mera Chatbot", page_icon="🤖")
 
 # Groq API client
 client = OpenAI(
-    api_key=st.secrets["GROQ_API_KEY"],
+    api_key=st.secrets["GROQ_KEY"],
     base_url="https://api.groq.com/openai/v1",
 )
 
